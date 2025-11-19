@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, trim
 import os
 
 RAW_DIR = "data/raw"
@@ -18,8 +19,7 @@ def main():
         .appName("CSV_Transformation") \
         .getOrCreate()
 
-    df = spark.read.csv(RAW_FILE)
-
+    df = spark.read.csv(RAW_FILE, header=True)  # Header=True keeps original column names
     print(df.head())
 
     transform(df)
@@ -30,13 +30,31 @@ def main():
 def transform(df):
     print(df.count())
 
+    df.show()  # Preview dataframe
+
     # Drop Null Values
 
-    df.na.drop().show()
+    new_df = df.na.drop()  # all nulls removed
 
-    # Drop any rows that have reviews before January 2009
+    # Drop rows where room_type is Entire home/apt
+
+    new_df = new_df.where(col("room_type") != "Entire home/apt")
+
+    # String transformations
+
+    # Remove whitespace
+
+    new_df = df.withColumn("name", trim(col("name")))
+
+    new_df.show(truncate=False)
+
+    load(new_df)
 
 
+### LOAD ###
+
+def load(new_df):
+    new_df.write.csv(CLEAN_FILE, header=True, mode='overwrite')
 
 
 main()
