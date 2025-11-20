@@ -72,6 +72,8 @@ def transform(df):
 
     new_df.show(truncate=False)
 
+    new_df.printSchema()
+
     # Call the load function
 
     load(new_df)
@@ -79,8 +81,11 @@ def transform(df):
 
 ### LOAD ###
 
-def load(new_df):
-    new_df.write.parquet(CLEAN_FILE, mode='overwrite')
+def load(new_df):  # Create a SINGLE Parquet file using coalesce
+    new_df.coalesce(1).write.parquet(CLEAN_FILE, mode='overwrite')
+
+    # Load into MySQL Database
+
 
 
 main()
