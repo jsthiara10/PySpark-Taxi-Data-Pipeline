@@ -3,6 +3,18 @@ import pyspark.sql.functions as F
 from pyspark.sql.functions import col, trim, round
 import os
 
+# add mySQL environment variables
+
+username = os.environ["MYSQL_USER"]
+password = os.environ["MYSQL_PASS"]
+
+# Add JBBC URL and table name
+
+jdbc_url = "jdbc:mysql://localhost:3306/yellow_taxi_database"
+table_name = "yellow_taxi_trips_jan_25"
+
+# Parquet file environment variables
+
 RAW_DIR = "data/raw"
 CLEAN_DIR = "data/clean"
 RAW_FILE = os.path.join(RAW_DIR, "nyc_taxi_data_2025-01.parquet")
@@ -15,9 +27,10 @@ os.makedirs(CLEAN_DIR, exist_ok=True)
 
 ### EXTRACT ###
 
-def main():
+def pipeline():
     spark = SparkSession.builder \
-        .appName("CSV_Transformation") \
+        .appName("PySpark_Taxi_NYC") \
+        .config("spark.jars", "/Users/jsthiara/Desktop/mysql-connector-j-9.5.0/mysql-connector-j-9.5.0.jar") \
         .getOrCreate()
 
     df = spark.read.parquet(RAW_FILE, header=True)  # Header=True keeps original column names
@@ -86,6 +99,17 @@ def load(new_df):  # Create a SINGLE Parquet file using coalesce
 
     # Load into MySQL Database
 
+    new_df = new_df.repartition(4) # Number of parallel partitions
+    new_df.write \
+        .format("jdbc") \
+        .option("url", jdbc_url) \
+        .option("dbtable", table_name) \
+        .option("user", username) \
+        .option("password", password) \
+        .option("driver", "com.mysql.cj.jdbc.Driver") \
+        .option("batchsize", 5000) \
+        .mode("overwrite") \
+        .save()
 
 
-main()
+pipeline()
