@@ -17,11 +17,20 @@ Additionally, engineers may often automate large jobs to run out-of-hours schedu
 Spark works well with Python using the PySpark library, which is used for data transformation in this pipeline. Additionally, a cron job is a simple way to
 schedule data pipelines that have few or no dependencies on other ETL jobs - such as this pipeline.
 
-This project transforms a large dataset containing around 3 million records for Yellow Taxi Data in New York City, for the month of January 2025
+This project transforms a large dataset containing around 3 million records for Yellow Taxi Data in New York City, for the month of January 2025.
 
 # Architecture 
 
-TBC
+![pyspark-diagram-1](images/pyspark-diagram-1.png)
+
+The PySpark job will run on a cron scheduler, which can be scheduled for the time most appropriate for the user.
+
+The ingestion layer comprises of 3 million records related to Yellow Taxi data in New York City contained in a Parquet file.
+
+At the transformation layer, data cleansing will occur via PySpark which will normalise data, perform rounding of numerical values, drop nulls and much more - you are also free to add your own transformations to the source code if you so wish.
+
+As per the user-defined cron schedule time, the PySpark transformations will take place automatically and then write them to a MySQL database. 
+At the analytics layer, there will be clean data ready for Business Intelligence, Machine Learning and reporting use-cases.
 
 # Technologies Used:
 
@@ -33,10 +42,10 @@ TBC
 
 **Java 17** (to use with Spark)
 
-**Linux** (for cron job)
+**Linux** (for cron job) - **Alternatively for Windows, you can use Task Scheduler**
 
 
-# **Set Up**
+# **Set Up:**
 
 ## **Part 1 - MySQL**
 
@@ -80,7 +89,11 @@ https://spark.apache.org/downloads.html
 
 ## Part 3 - Repo & Virtual Environment  ##
 
-**1. Clone (and optionally, fork) this repository**
+**1. Clone and/or fork this repository**
+
+````
+git clone https://github.com/jsthiara10/PySpark-Taxi-Data-Pipeline.git
+````
 
 **2. Setup a virtual environment, using **Python 3.9 (Important)****
 
@@ -110,7 +123,7 @@ deactivate
 
 We'll be using relative paths for our Extract and Load processes
 
-In your project directory, create the following folder
+Still in your virtual environment, create the following folder
 
 ````
 mkdir data
@@ -124,11 +137,15 @@ cd data
 
 Then in the data folder, create the following directories
 
+Our raw folder will contain the source Parquet file, whilst our clean folder will have a cleaned version of our Parquet file
+written to it at the end of the ETL process
+
 ````
 mkdir raw
 
 mkdir clean
 ````
+
 
 Switch back to your project directory
 
