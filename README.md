@@ -2,7 +2,7 @@
 
 **This project transforms 3 million records for Taxi Data in New York City using PySpark, and writes them to MySQL**
 
-![pyspark-diagram](images/pyspark-diagram-2.png)
+![pyspark-diagram](images/architecture-diagram.png)
 
 # **Overview & Architecture**
 
@@ -23,7 +23,7 @@ At the transformation layer, data cleansing will occur via PySpark which will no
 
 At the analytics layer, there will be clean data ready for Business Intelligence, Machine Learning and reporting use-cases.
 
-# Technologies Used:
+# Technologies Used
 
 **PySpark**
 
@@ -210,7 +210,7 @@ LIMIT 1000
 
 **You should see some data that has been added to our table**
 
-![sql-records](images/my-sql-data.jpg)
+![sql-records](images/my-sql-data.png)
 
 **You can also validate changes as per our specified transformations** 
 
