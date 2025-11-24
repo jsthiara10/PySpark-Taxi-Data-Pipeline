@@ -1,2 +1,3 @@
 pyspark
 mysql-connector-python
+apache-airflow

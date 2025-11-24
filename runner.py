@@ -1,3 +1,6 @@
+# Entry point for PySpark application
+
 from main import pipeline
 
-pipeline()
+if __name__ == "__main__":
+    pipeline()

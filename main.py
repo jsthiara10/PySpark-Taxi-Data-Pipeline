@@ -1,29 +1,9 @@
+# PySpark pipeline process
+
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col, trim, round
-import os
-
-# add mySQL environment variables
-
-username = os.environ["MYSQL_USER"]
-password = os.environ["MYSQL_PASS"]
-
-# Add JBBC URL and table name
-
-jdbc_url = "jdbc:mysql://localhost:3306/yellow_taxi_database"
-table_name = "yellow_taxi_trips_jan_25"
-
-# Parquet file environment variables
-
-RAW_DIR = "data/raw"
-CLEAN_DIR = "data/clean"
-RAW_FILE = os.path.join(RAW_DIR, "nyc_taxi_data_2025-01.parquet")
-CLEAN_FILE = os.path.join(CLEAN_DIR, "CLEAN_nyc_taxi_data_2025-01.parquet")
-
-# Ensure that the directory exists
-
-os.makedirs(CLEAN_DIR, exist_ok=True)
-
+from utils import username, password, jdbc_url, table_name, RAW_DIR, CLEAN_DIR, RAW_FILE, CLEAN_FILE
 
 ### EXTRACT ###
 
@@ -50,7 +30,7 @@ def transform(df):
 
     # 2. Round necessary columns
 
-    # Round tpep pickup_datetime to nearest minute
+    # a. Round tpep pickup_datetime to nearest minute
 
     new_df = new_df.withColumn(
         "tpep_pickup_datetime",
@@ -58,7 +38,7 @@ def transform(df):
             "minute", F.col("tpep_pickup_datetime") + F.expr("INTERVAL 30 seconds"))
     )
 
-    # Round tpep_dropoff_datetime to nearest minute
+    # b. Round tpep_dropoff_datetime to the nearest minute
 
     new_df = new_df.withColumn(
         "tpep_dropoff_datetime",
@@ -66,26 +46,24 @@ def transform(df):
             "minute", F.col("tpep_dropoff_datetime") + F.expr("INTERVAL 30 seconds"))
     )
 
-    # Round Total Amount to 1 Decimal Place
+    # c. Round Total Amount to 1 Decimal Place
 
     new_df = new_df.withColumn(
         "total_amount", round(new_df.total_amount, 1))
 
-    # Round Tip Amount to 1 Decimal Place
+    # d. Round Tip Amount to 1 Decimal Place
 
     new_df = new_df.withColumn(
         "tip_amount", round(new_df.tip_amount, 1))
 
-    # Round Fare Amount to 1 Decimal Place
+    # e. Round Fare Amount to 1 Decimal Place
 
     new_df = new_df.withColumn(
         "fare_amount", round(new_df.fare_amount, 1))
 
-    # Validate changes on new df
+    # 3. Validate changes on new df
 
     new_df.show(truncate=False)
-
-    new_df.printSchema()
 
     # Call the load function
 
@@ -107,7 +85,7 @@ def load(new_df):  # Create a SINGLE Parquet file using coalesce
         .option("user", username) \
         .option("password", password) \
         .option("driver", "com.mysql.cj.jdbc.Driver") \
-        .option("batchsize", 5000) \
+        .option("batchsize", 10000) \
         .mode("overwrite") \
         .save()
 
