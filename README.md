@@ -3,7 +3,6 @@
 **This project transforms 3 million records for Taxi Data in New York City using PySpark, and writes them to MySQL**
 
 ![Apache Spark Logo](images/apache-spark-logo.png)
-![MySQL Logo](images/my-sql-logo.png)
 
 
 # **Overview**
@@ -20,8 +19,6 @@ This project transforms a large dataset containing around 3 million records for 
 # Architecture 
 
 ![pyspark-diagram-1](images/pyspark-diagram-1.png)
-
-The PySpark job will run on a cron scheduler, which can be scheduled for the time most appropriate for the user.
 
 The ingestion layer comprises of 3 million records related to Yellow Taxi data in New York City contained in a Parquet file.
 
